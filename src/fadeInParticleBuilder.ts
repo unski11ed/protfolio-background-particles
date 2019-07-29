@@ -8,7 +8,9 @@ export const createFadeInParticleBuilder = (params: {
 }): ParticleBuilder => (particle: Particle) => {
   const { elementAnimation } = params;
   const targetOpacity = random(0.1, particle.maxOpacity);
-  const targetSize = random(0.1, particle.maxSize);
+  const targetSize = random(2, particle.maxSize);
+  
+  particle.speed = random(0.001, 0.1, true);
 
   elementAnimation.animateElement(
     particle,
@@ -17,8 +19,8 @@ export const createFadeInParticleBuilder = (params: {
       size: [0, targetSize]
     },
     {
-      functionName: "OutCubic",
-      duration: 200
+      functionName: "cubicOut",
+      duration: 10000
     }
   );
 };

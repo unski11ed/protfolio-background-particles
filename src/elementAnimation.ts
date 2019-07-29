@@ -1,5 +1,5 @@
 import { IElement, ElementModifier } from "./element";
-import { OutCubic } from "@rbxts/easing-functions";
+import * as eases from "eases";
 
 export type AnimationParams = {
   [key: string]: number[];
@@ -53,12 +53,11 @@ export class ElementAnimation {
         for (const targetKey of Object.keys(state.params)) {
           const [initialValue, endValue] = state.params[targetKey];
 
-          OutCubic(
-            time - state.startTime,
-            initialValue,
-            endValue - initialValue,
-            state.options.duration
-          );
+          const t = (time - state.startTime) / state.options.duration;
+          const v = eases[state.options.functionName](t);
+          const value = initialValue + v * (endValue - initialValue);
+
+          element[targetKey] = value;
         }
       }
     };

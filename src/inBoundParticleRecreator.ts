@@ -1,11 +1,12 @@
 import { Particle } from "./particle";
-import { ParticleModifier, Particles } from "./particles";
+import { Particles } from "./particles";
 import { ScreenSize } from "./screenSize";
+import { ElementModifier } from "./element";
 
 export const createInBoundParticleRecreator = (params: {
   screenSize: ScreenSize;
   particles: Particles;
-}): ParticleModifier => (particle: Particle, time: number) => {
+}): ElementModifier => (particle: Particle, time: number) => {
   const { screenSize, particles } = params;
 
   if (
