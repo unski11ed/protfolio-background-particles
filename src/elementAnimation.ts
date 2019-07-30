@@ -14,6 +14,7 @@ type AnimationState = {
   startTime: number;
   params: AnimationParams;
   options: AnimationOptions;
+  finishedPromiseResolver: (element: IElement) => void;
 };
 
 const DefaultAnimationOptions: AnimationOptions = {
@@ -28,23 +29,32 @@ export class ElementAnimation {
     element: IElement,
     animatedParams: AnimationParams,
     animationOptions: AnimationOptions
-  ) {
-    this.animationStates.set(element, {
-      startTime: Date.now(),
-      params: animatedParams,
-      options: {
-        ...DefaultAnimationOptions,
-        ...animationOptions
-      }
+  ): Promise<IElement> {
+    return new Promise<IElement>((finishedPromiseResolver) => {
+      this.animationStates.set(element, {
+        startTime: Date.now(),
+        params: animatedParams,
+        options: {
+          ...DefaultAnimationOptions,
+          ...animationOptions
+        },
+        finishedPromiseResolver,
+      });
     });
   }
 
-  createModifier(): ElementModifier {
+  public isAnimated(element: IElement) {
+    return this.animationStates.has(element);
+  }
+
+  public createModifier(): ElementModifier {
     return (element: IElement, time: number) => {
       const state = this.animationStates.get(element);
 
       if (state) {
         if (time >= state.startTime + state.options.duration) {
+          state.finishedPromiseResolver(element);
+
           this.animationStates.delete(element);
 
           return;

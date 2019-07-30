@@ -9,6 +9,8 @@ export class Particle implements IElement {
   public vX = 0;
   public vY = 0;
 
+  public gravityCenterLength = 0;
+
   constructor(
     public x: number,
     public y: number,

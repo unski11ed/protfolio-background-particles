@@ -20,7 +20,7 @@ export const createFadeInParticleBuilder = (params: {
     },
     {
       functionName: "cubicOut",
-      duration: 10000
+      duration: 3000
     }
   );
 };
