@@ -14,6 +14,8 @@ import { createInBoundParticleRecreator } from "./inBoundParticleRecreator";
 import { ParticleUpdater } from "./particleUpdater";
 import { ElementAnimation } from "./elementAnimation";
 import { RippleGenerator } from './rippleGenerator';
+import { RippleTexture } from "./rippleTexture";
+import { RippleRenderer } from "./rippleRenderer";
 
 const canvasElement: HTMLCanvasElement = document.querySelector("#canvas");
 
@@ -28,6 +30,7 @@ async function bootstrap() {
   });
   const textureLoader = new TextureLoader();
   const particleRenderer = new ParticleRenderer(canvasElement);
+  const rippleRenderer = new RippleRenderer(canvasElement);
 
   textureLoader.registerTextures({
     particle: {
@@ -35,6 +38,12 @@ async function bootstrap() {
     }
   });
 
+  const colors = [
+    "#f00",
+    "#0f0",
+    "#00f"
+  ];
+  let currentColorIndex = 0;
   const textures = await textureLoader.loadTextures();
   const elementAnimation = new ElementAnimation();
   const particles = new Particles(screenSize, textures["particle"].image, [
@@ -47,7 +56,7 @@ async function bootstrap() {
   ]);
   const rippleGenerator = new RippleGenerator(
     {
-      duration: 600,
+      duration: 6000,
       easingFunc: 'quadIn',
       waveLength: 20,
     },
@@ -55,6 +64,16 @@ async function bootstrap() {
     gravitySource,
     screenSize,
     elementAnimation,
+  );
+  const rippleTexture = new RippleTexture(
+    {
+      duration: 6000,
+      easingFunc: 'quadIn',
+      waveLength: 100,
+      initialColor: colors[currentColorIndex]
+    },
+    screenSize,
+    gravitySource,
   );
   const particleUpdater = new ParticleUpdater(
     [
@@ -67,20 +86,27 @@ async function bootstrap() {
 
   particles.create(200);
 
-  setTimeout(() => {
+  setInterval(() => {
+    currentColorIndex = (currentColorIndex + 1) % colors.length;
+
     rippleGenerator.trigger();
+    rippleTexture.trigger(colors[currentColorIndex]);
   }, 7000);
 
   (function loop() {
+    const time = Date.now();
+
     // Setup Scene
     screen.prepareScene();
 
     // Update entities
     particleUpdater.update();
+    rippleTexture.update(time);
     rippleGenerator.update();
 
     // Render
     particleRenderer.render(particles.particles);
+    rippleRenderer.render([rippleTexture]);
 
     // Continue Loop...
     requestAnimationFrame(loop);

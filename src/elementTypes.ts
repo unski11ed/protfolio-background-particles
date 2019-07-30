@@ -1,3 +1,4 @@
 export enum ElementType {
-  Particle = "element--particle"
+  Particle = "element--particle",
+  Ripple = "element--ripple",
 }
