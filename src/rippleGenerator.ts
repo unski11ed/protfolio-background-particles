@@ -35,7 +35,7 @@ export class RippleGenerator {
         const { duration, easingFunc, waveLength } = this.params;
         const time = Date.now();
         const particleAnimationOptions = {
-            duration: 150,
+            duration: 50,
             functionName: 'quadInOut'
         };
 

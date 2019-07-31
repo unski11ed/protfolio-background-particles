@@ -26,6 +26,7 @@ export class RippleTexture implements IUpdatable, IElement {
     private startTime = 0;
     private currentColor: string;
     private nextColor: string = '#fff';
+    private animationInProgress = false;
 
     constructor(
         private params: RippleTextureParams,
@@ -46,6 +47,7 @@ export class RippleTexture implements IUpdatable, IElement {
 
     public trigger(nextColor: string) {
         this.startTime = Date.now();
+        this.animationInProgress = true;
 
         this.currentColor = this.nextColor;
         this.nextColor = nextColor;
@@ -54,15 +56,19 @@ export class RippleTexture implements IUpdatable, IElement {
     public update(time: number) {
         const { duration, easingFunc } = this.params;
 
-        if (this.startTime + duration > time) {
-            const t = (time - this.startTime) / duration;
-            const v = eases[easingFunc](t);
-            const rippleRadius = v * this.getTargetRadius();
+        if (this.animationInProgress) {
+            if (this.startTime + duration > time) {
+                const t = (time - this.startTime) / duration;
+                const v = eases[easingFunc](t);
+                const rippleRadius = v * this.getTargetRadius();
+    
+                this.generateTexture(rippleRadius);
+            } else {
+                // Finish
+                this.fillTexture({ color: this.nextColor });
 
-            this.generateTexture(rippleRadius);
-        } else {
-            // Finish
-            this.fillTexture({ color: this.nextColor });
+                this.animationInProgress = false;
+            }
         }
     }
 
@@ -84,7 +90,7 @@ export class RippleTexture implements IUpdatable, IElement {
         x: number;
         y: number;
         radius: number;
-        color: string;
+        color: string | CanvasGradient;
     }) {
         this.canvasContext.beginPath();
         this.canvasContext.fillStyle = params.color;
@@ -99,24 +105,33 @@ export class RippleTexture implements IUpdatable, IElement {
     }
 
     private generateTexture(rippleRadius: number) {
-        const { width, height } = this.screenSize;
         const { waveLength } = this.params;
 
         this.fillTexture({ color: this.currentColor });
+        
+        const offset = waveLength / 2;
+        // Setup Radial Gradient
+        const waveGradient = this.canvasContext.createRadialGradient(
+            // Inner Circle (x, y, r)
+            this.gravitySource.center.x,
+            this.gravitySource.center.y,
+            rippleRadius - offset < 0 ? 0 : rippleRadius - offset,
+
+            // Outer Cricle (x, y, r)
+            this.gravitySource.center.x,
+            this.gravitySource.center.y,
+            rippleRadius + offset,
+        );
+        waveGradient.addColorStop(0.0, this.nextColor);
+        waveGradient.addColorStop(0.2, '#fff');
+        waveGradient.addColorStop(0.8, '#fff');
+        waveGradient.addColorStop(1.0, this.currentColor);
 
         // Draw Wave
         this.drawCircle({
             ...this.gravitySource.center,
-            radius: rippleRadius,
-            color: '#fff'
-        });
-
-        // Draw Secondary Color
-        const secondaryRadius = rippleRadius - waveLength;
-        this.drawCircle({
-            ...this.gravitySource.center,
-            radius: secondaryRadius >= 0 ? secondaryRadius : 0,
-            color: this.nextColor
+            radius: rippleRadius + offset,
+            color: waveGradient,
         });
     }
 }

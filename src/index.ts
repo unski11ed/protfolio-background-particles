@@ -56,8 +56,8 @@ async function bootstrap() {
   ]);
   const rippleGenerator = new RippleGenerator(
     {
-      duration: 6000,
-      easingFunc: 'quadIn',
+      duration: 4000,
+      easingFunc: 'cubicOut',
       waveLength: 20,
     },
     particles,
@@ -67,9 +67,9 @@ async function bootstrap() {
   );
   const rippleTexture = new RippleTexture(
     {
-      duration: 6000,
-      easingFunc: 'quadIn',
-      waveLength: 100,
+      duration: 4000,
+      easingFunc: 'cubicOut',
+      waveLength: 200,
       initialColor: colors[currentColorIndex]
     },
     screenSize,
@@ -86,12 +86,13 @@ async function bootstrap() {
 
   particles.create(200);
 
+  rippleTexture.trigger(colors[currentColorIndex]);
   setInterval(() => {
     currentColorIndex = (currentColorIndex + 1) % colors.length;
 
     rippleGenerator.trigger();
     rippleTexture.trigger(colors[currentColorIndex]);
-  }, 7000);
+  }, 5000);
 
   (function loop() {
     const time = Date.now();
