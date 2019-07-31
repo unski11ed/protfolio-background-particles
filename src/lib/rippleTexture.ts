@@ -1,10 +1,12 @@
 import eases from 'eases';
 
-import { IUpdatable } from "./updatable";
+import { IUpdatable } from "./interfaces/updatable";
+import { IElement } from "./interfaces/element";
+import { ElementType } from "./interfaces/elementTypes";
 import { ScreenSize } from "./screenSize";
-import { IElement } from "./element";
-import { ElementType } from "./elementTypes";
 import { GravitySource } from "./gravitySource";
+import { Point } from './interfaces/point';
+import { rippleLength, drawCircle } from './utilities';
 
 export type RippleTextureParams = {
     duration: number;
@@ -24,6 +26,7 @@ export class RippleTexture implements IUpdatable, IElement {
     private canvasElement: HTMLCanvasElement | null = null;
     private canvasContext: CanvasRenderingContext2D | null = null;
     private startTime = 0;
+    private originPoint: Point = { x: 0, y: 0 };
     private currentColor: string;
     private nextColor: string = '#fff';
     private animationInProgress = false;
@@ -45,12 +48,13 @@ export class RippleTexture implements IUpdatable, IElement {
         }
     }
 
-    public trigger(nextColor: string) {
+    public trigger(nextColor: string, originPoint: Point) {
         this.startTime = Date.now();
         this.animationInProgress = true;
 
         this.currentColor = this.nextColor;
         this.nextColor = nextColor;
+        this.originPoint = originPoint;
     }
 
     public update(time: number) {
@@ -60,7 +64,10 @@ export class RippleTexture implements IUpdatable, IElement {
             if (this.startTime + duration > time) {
                 const t = (time - this.startTime) / duration;
                 const v = eases[easingFunc](t);
-                const rippleRadius = v * this.getTargetRadius();
+                const rippleRadius = v * rippleLength(
+                    this.screenSize,
+                    this.originPoint
+                );
     
                 this.generateTexture(rippleRadius);
             } else {
@@ -72,36 +79,9 @@ export class RippleTexture implements IUpdatable, IElement {
         }
     }
 
-    private getTargetRadius() {
-        const { center } = this.gravitySource;
-
-        return Math.sqrt(
-            Math.pow(center.x > this.screenSize.width / 2 ? center.x : this.screenSize.width - center.x, 2) +
-            Math.pow(center.y > this.screenSize.height / 2 ? center.y : this.screenSize.height - center.y, 2)
-        );
-    }
-
     private fillTexture(params: { color: string }) {
         this.canvasContext.fillStyle = params.color;
         this.canvasContext.fillRect(0, 0, this.screenSize.width, this.screenSize.height);
-    }
-
-    private drawCircle(params: {
-        x: number;
-        y: number;
-        radius: number;
-        color: string | CanvasGradient;
-    }) {
-        this.canvasContext.beginPath();
-        this.canvasContext.fillStyle = params.color;
-        this.canvasContext.arc(
-            params.x,
-            params.y,
-            params.radius,
-            0,
-            2 * Math.PI
-        );
-        this.canvasContext.fill();
     }
 
     private generateTexture(rippleRadius: number) {
@@ -113,14 +93,14 @@ export class RippleTexture implements IUpdatable, IElement {
         // Setup Radial Gradient
         const waveGradient = this.canvasContext.createRadialGradient(
             // Inner Circle (x, y, r)
-            this.gravitySource.center.x,
-            this.gravitySource.center.y,
+            this.originPoint.x,
+            this.originPoint.y,
             rippleRadius - offset < 0 ? 0 : rippleRadius - offset,
 
             // Outer Cricle (x, y, r)
-            this.gravitySource.center.x,
-            this.gravitySource.center.y,
-            rippleRadius + offset,
+            this.originPoint.x,
+            this.originPoint.y,
+            rippleRadius + waveLength,
         );
         waveGradient.addColorStop(0.0, this.nextColor);
         waveGradient.addColorStop(0.2, '#fff');
@@ -128,8 +108,8 @@ export class RippleTexture implements IUpdatable, IElement {
         waveGradient.addColorStop(1.0, this.currentColor);
 
         // Draw Wave
-        this.drawCircle({
-            ...this.gravitySource.center,
+        drawCircle(this.canvasContext, {
+            ...this.originPoint,
             radius: rippleRadius + offset,
             color: waveGradient,
         });
