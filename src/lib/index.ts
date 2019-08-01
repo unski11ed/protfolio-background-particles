@@ -1,3 +1,5 @@
+import { EventEmitter } from "eventemitter3";
+
 import { Screen } from './screen';
 import { ScreenSize } from './screenSize';
 import { Particles } from './particles';
@@ -48,6 +50,12 @@ const defaultConfig: RippledParticlesConfig = {
     initialColor: 'hotpink'
 }
 
+class RippledParticlesEvents extends EventTarget {
+    triggerReset() {
+        this.dispatchEvent(new Event('reset'));
+    }
+}
+
 export default class {
     private screen: Screen;
     private screenSize: ScreenSize;
@@ -63,6 +71,8 @@ export default class {
     private rippleRenderer: RippleRenderer;
 
     private isLoopActive: boolean = true;
+
+    public events = new EventEmitter();
 
     constructor(
         canvasElement: HTMLCanvasElement,
@@ -136,14 +146,12 @@ export default class {
         // Bootstrap ============================
         this.loop();
 
-        screen.onScreenResized.on('screenResized', () => {
-            // recreate
+        screen.events.on('screenResized', () => {
+            this.reset();
         });
     }
 
     public createParticles(count: number) {
-        // recreate
-
         this.particles.create(count);
     }
 
@@ -156,6 +164,14 @@ export default class {
         this.isLoopActive = false;
 
         this.screen.destroy();
+    }
+
+    public reset() {
+        for (const particle of this.particles.particles) {
+            this.particles.destroy(particle);
+        }
+
+        this.events.emit('reset');
     }
 
     private loop() {

@@ -1,9 +1,9 @@
 import { IDestroyable } from "./interfaces/destroyable";
-import { EventEmitter } from "events";
+import { EventEmitter } from "eventemitter3";
 import { ScreenSize } from "./screenSize";
 
 export class Screen implements IDestroyable {
-    public onScreenResized: EventEmitter = new EventEmitter();
+    public events = new EventEmitter();
 
     private canvasContext: CanvasRenderingContext2D;
     private handleCanvasResize = () => {
@@ -12,7 +12,7 @@ export class Screen implements IDestroyable {
         this.canvasElement.width = canvasElementRect.width;
         this.canvasElement.height = canvasElementRect.height;
 
-        this.onScreenResized.emit("screenResized");
+        this.events.emit("screenResized");
     };
 
     constructor(

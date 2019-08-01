@@ -25,6 +25,9 @@ const rippledParticles = new RippledParticles(canvasElement, {
     //rippleConfig,
     initialColor: colors[currentColorIndex],
 });
+rippledParticles.events.on('reset', () => {
+    rippledParticles.createParticles(200);
+})
 
 rippledParticles.createParticles(200);
 gravityShadowElement.style.width = `${gravity.width}px`;
