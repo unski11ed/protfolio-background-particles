@@ -15,7 +15,7 @@ export function drawCircle(
     ctx.arc(
         params.x,
         params.y,
-        params.radius,
+        params.radius < 0 ? 0 : params.radius,
         0,
         2 * Math.PI
     );
