@@ -169,12 +169,12 @@ export default class {
         this.rippleTexture.update(time);
         this.rippleGenerator.update(time);
 
+        // Update animations
+        this.propertyAnimation.update(time);
+
         // Render
         this.particleRenderer.render(this.particles.particles);
         this.rippleRenderer.render(this.rippleTexture);
-
-        // Update animations
-        this.propertyAnimation.update(time);
 
         // Continue Loop...
         if (this.isLoopActive) {

@@ -15,7 +15,7 @@ const gravity = {
 };
 const rippleConfig = {
     rippleAnimationDuration: 800,
-    rippleAnimationEasing: 'cubicIn'
+    rippleAnimationEasing: 'cubicIn',
 }
 
 const canvasElement: HTMLCanvasElement = document.querySelector('#canvas');
