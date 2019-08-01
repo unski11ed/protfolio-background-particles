@@ -3,3 +3,14 @@ body {
   margin: 0;
   background: black;
 }
+
+.gravity-shadow {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    var(--gravity-color) 0%,
+    rgba(255, 255, 255, 0) 80%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}

@@ -7,6 +7,7 @@ import { FadeInParticleBuilder, FadeInParticleBuilderOptions } from './fadeInPar
 import { GravitySource } from './gravitySource';
 import { createMovementParticleModifier } from './movementParticleModifier';
 import { createInBoundParticleRecreator } from './inBoundParticleRecreator';
+import { createParticleToGravityModifier } from './particleToGravityOpacityModifier';
 import { ParticleUpdater } from './particleUpdater';
 import { PropertyAnimation } from './propertyAnimation';
 import { RippleGenerator, RippleGeneratorParams } from './rippleGenerator';
@@ -35,7 +36,7 @@ const defaultConfig: RippledParticlesConfig = {
         minSize: 1,
         maxSize: 4,
         minOpacity: 0.1,
-        maxOpacity: 0.7,
+        maxOpacity: 0.9,
         minSpeed: 0.001,
         maxSpeed: 0.1,
     },
@@ -103,9 +104,15 @@ export default class {
             bounds: screenSize,
             particles,
         });
+        const particleToGravityOpacityModifier = createParticleToGravityModifier({
+            screenSize,
+            gravitySource,
+            particleConfig: config.particleConfig
+        });
         this.particleUpdater = new ParticleUpdater([
             movementParticleModifier,
-            inBoundParticleRecreator
+            inBoundParticleRecreator,
+            particleToGravityOpacityModifier
         ], particles);
 
         // Ripple ===================================
@@ -158,7 +165,6 @@ export default class {
         this.screen.prepareScene();
 
         // Update entities
-        this.propertyAnimation.update(time);
         this.particleUpdater.update(time);
         this.rippleTexture.update(time);
         this.rippleGenerator.update(time);
@@ -166,6 +172,9 @@ export default class {
         // Render
         this.particleRenderer.render(this.particles.particles);
         this.rippleRenderer.render(this.rippleTexture);
+
+        // Update animations
+        this.propertyAnimation.update(time);
 
         // Continue Loop...
         if (this.isLoopActive) {
