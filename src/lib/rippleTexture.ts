@@ -38,14 +38,18 @@ export class RippleTexture implements IUpdatable, IElement {
     ) {
         if (typeof document !== 'undefined') {
             this.canvasElement = document.createElement('canvas');
-            this.canvasElement.width = screenSize.width;
-            this.canvasElement.height = screenSize.height;
+            this.updateSize();
             this.canvasContext = this.canvasElement.getContext('2d');
 
             this.currentColor = params.initialColor;
 
             this.fillTexture({ color: this.currentColor });
         }
+    }
+
+    public updateSize() {
+        this.canvasElement.width = this.screenSize.width;
+        this.canvasElement.height = this.screenSize.height;
     }
 
     public trigger(nextColor: string, originPoint: Point) {

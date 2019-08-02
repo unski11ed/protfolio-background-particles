@@ -10,6 +10,7 @@
   "dependencies": {
     "eases": "^1.0.8",
     "eventemitter3": "^4.0.0",
+    "fps-throttler": "^1.0.2",
     "lodash": "4.17.15",
     "reset-css": "4.0.1"
   },

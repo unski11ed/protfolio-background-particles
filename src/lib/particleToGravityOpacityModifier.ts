@@ -8,6 +8,7 @@ import { distance, rippleLength } from './utilities';
 export type ParticleConfig = {
     minOpacity?: number;
     maxOpacity?: number;
+    easing?: string;
 }
 // Creates a ElementModifier function which adjusts
 // the particle opacity based on its distance to
@@ -23,6 +24,7 @@ export const createParticleToGravityModifier = (params: {
         const particleConfig = {
             minOpacity: 0.1,
             maxOpacity: 0.9,
+            easing: 'cubicIn',
             ...params.particleConfig
         };
         const { gravitySource, screenSize } = params;
@@ -36,8 +38,8 @@ export const createParticleToGravityModifier = (params: {
         );
         const distanceNormalized = 
             (highestDistance - distanceToGravity) / highestDistance;
-        const targetOpacity = particleConfig.minOpacity + eases.cubicIn(distanceNormalized)
-            * (particleConfig.maxOpacity - particleConfig.minOpacity);
+        const targetOpacity = particleConfig.minOpacity +
+            eases[particleConfig.easing](distanceNormalized) * (particleConfig.maxOpacity - particleConfig.minOpacity);
 
         particle.opacity = targetOpacity;
     };

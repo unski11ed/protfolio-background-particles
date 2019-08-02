@@ -1,4 +1,5 @@
 import { EventEmitter } from "eventemitter3";
+import FpsThrottler from 'fps-throttler';
 
 import { Screen } from './screen';
 import { ScreenSize } from './screenSize';
@@ -17,14 +18,18 @@ import { RippleTexture } from './rippleTexture';
 import { RippleRenderer } from './rippleRenderer';
 import { Point } from './interfaces/point';
 import { Rect } from './interfaces/rect';
+import { merge, createDebouncer } from "./utilities";
 
 export type RippledParticlesConfig = {
     gravitySourceRect?: Rect;
-    particleConfig?: FadeInParticleBuilderOptions;
+    particleConfig?: FadeInParticleBuilderOptions & {
+        gravityOpacityFunc: string;
+    };
     rippleConfig?: RippleGeneratorParams & {
         waveLength?: number;
     };
     initialColor?: string;
+    fpsLimit?: number;
 }
 
 const defaultConfig: RippledParticlesConfig = {
@@ -41,26 +46,26 @@ const defaultConfig: RippledParticlesConfig = {
         maxOpacity: 0.9,
         minSpeed: 0.001,
         maxSpeed: 0.1,
+        gravityOpacityFunc: 'cubicOut'
     },
     rippleConfig: {
         rippleAnimationDuration: 1000,
         rippleAnimationEasing: 'cubicOut',
         waveLength: 300,
     },
-    initialColor: 'hotpink'
-}
-
-class RippledParticlesEvents extends EventTarget {
-    triggerReset() {
-        this.dispatchEvent(new Event('reset'));
-    }
+    initialColor: 'hotpink',
+    fpsLimit: 30,
 }
 
 export default class {
+    private options: RippledParticlesConfig;
+
     private screen: Screen;
     private screenSize: ScreenSize;
     
     private propertyAnimation: PropertyAnimation;
+
+    private gravitySource: GravitySource;
 
     private particles: Particles;
     private particleUpdater: ParticleUpdater;
@@ -70,7 +75,7 @@ export default class {
     private rippleTexture: RippleTexture;
     private rippleRenderer: RippleRenderer;
 
-    private isLoopActive: boolean = true;
+    private fpsThrottler: FpsThrottler;
 
     public events = new EventEmitter();
 
@@ -78,7 +83,7 @@ export default class {
         canvasElement: HTMLCanvasElement,
         config: RippledParticlesConfig
     ) {
-        const options = { ...defaultConfig, ...config };
+        const options: RippledParticlesConfig = this.options = merge(defaultConfig, config);
 
         // Screen ===================================
         const screenSize = this.screenSize = new ScreenSize(canvasElement);
@@ -92,7 +97,7 @@ export default class {
         const propertyAnimation = this.propertyAnimation = new PropertyAnimation();
 
         // Particles ================================
-        const gravitySource = new GravitySource({
+        const gravitySource = this.gravitySource =  new GravitySource({
             ...options.gravitySourceRect,
             x: options.gravitySourceRect.x * screenSize.width,
             y: options.gravitySourceRect.x * screenSize.height,
@@ -117,7 +122,7 @@ export default class {
         const particleToGravityOpacityModifier = createParticleToGravityModifier({
             screenSize,
             gravitySource,
-            particleConfig: config.particleConfig
+            particleConfig: config.particleConfig,
         });
         this.particleUpdater = new ParticleUpdater([
             movementParticleModifier,
@@ -144,11 +149,14 @@ export default class {
         );
 
         // Bootstrap ============================
-        this.loop();
+        this.fpsThrottler = new FpsThrottler(this.loop.bind(this), config.fpsLimit);
+        const resizeDebouncer = createDebouncer(300);
 
         screen.events.on('screenResized', () => {
-            this.reset();
+            resizeDebouncer(this.reset.bind(this));
         });
+
+        this.fpsThrottler.start();
     }
 
     public createParticles(count: number) {
@@ -161,12 +169,20 @@ export default class {
     }
 
     public destroy() {
-        this.isLoopActive = false;
+        this.fpsThrottler.stop();
 
         this.screen.destroy();
     }
 
     public reset() {
+        this.rippleTexture.updateSize();
+        
+        this.gravitySource.setRegion({
+            ...this.options.gravitySourceRect,
+            x: this.options.gravitySourceRect.x * this.screenSize.width,
+            y: this.options.gravitySourceRect.x * this.screenSize.height,
+        });
+
         for (const particle of this.particles.particles) {
             this.particles.destroy(particle);
         }
@@ -191,10 +207,5 @@ export default class {
         // Render
         this.particleRenderer.render(this.particles.particles);
         this.rippleRenderer.render(this.rippleTexture);
-
-        // Continue Loop...
-        if (this.isLoopActive) {
-            requestAnimationFrame(this.loop.bind(this));
-        }
     }
 }
