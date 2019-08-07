@@ -1,7 +1,7 @@
 {
   "name": "rippled-particles",
   "version": "1.0.0",
-  "description": "Simple Parcel Sandbox",
+  "description": "Creates an effect where particles with defined parameters are simulated on the provided Canvas element. A ripple may be triggered from a specific origin location to create a cool transition effect.",
   "main": "dist/cjs/rippled-particles.js",
   "module": "dist/es/rippled-particles.mjs",
   "browser": "dist/browser/rippled-particles.js",
