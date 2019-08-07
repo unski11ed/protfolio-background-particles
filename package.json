@@ -1,13 +1,19 @@
 {
-  "name": "parcel-sandbox",
+  "name": "rippled-particles",
   "version": "1.0.0",
   "description": "Simple Parcel Sandbox",
-  "main": "index.html",
+  "main": "dist/cjs/rippled-particles.js",
+  "module": "dist/es/rippled-particles.mjs",
+  "browser": "dist/browser/rippled-particles.js",
+  "types": "dist/ts/rippled-particles.d.ts",
   "scripts": {
-    "start": "parcel index.html --open",
-    "build": "parcel build index.html"
+    "start": "parcel example/index.html --open",
+    "build": "rollup -c"
   },
   "dependencies": {
+    "@types/eases": "^1.0.0",
+    "@types/eventemitter3": "^2.0.2",
+    "@types/lodash": "^4.14.136",
     "eases": "^1.0.8",
     "eventemitter3": "^4.0.0",
     "fps-throttler": "^1.0.2",
@@ -17,6 +23,9 @@
   "devDependencies": {
     "@babel/core": "7.2.0",
     "parcel-bundler": "^1.6.1",
+    "rollup": "^1.18.0",
+    "rollup-plugin-terser": "^5.1.1",
+    "rollup-plugin-typescript2": "^0.22.1",
     "typescript": "^3.5.3"
   }
 }

@@ -1,5 +1,6 @@
+import EventEmitter from "eventemitter3";
+
 import { IDestroyable } from "./interfaces/destroyable";
-import { EventEmitter } from "eventemitter3";
 import { ScreenSize } from "./screenSize";
 
 export class Screen implements IDestroyable {
