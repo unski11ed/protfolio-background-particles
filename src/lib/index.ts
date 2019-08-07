@@ -1,5 +1,5 @@
 import EventEmitter from "eventemitter3";
-import * as FpsThrottler from 'fps-throttler';
+import FpsThrottler from 'fps-throttler';
 
 import { Screen } from './screen';
 import { ScreenSize } from './screenSize';
