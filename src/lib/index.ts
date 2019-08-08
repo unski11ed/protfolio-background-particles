@@ -1,5 +1,6 @@
 import EventEmitter from "eventemitter3";
 import FpsThrottler from 'fps-throttler';
+import _ from 'lodash';
 
 import { Screen } from './screen';
 import { ScreenSize } from './screenSize';
@@ -18,7 +19,7 @@ import { RippleTexture } from './rippleTexture';
 import { RippleRenderer } from './rippleRenderer';
 import { Point } from './interfaces/point';
 import { Rect } from './interfaces/rect';
-import { merge, createDebouncer } from "./utilities";
+import { createDebouncer } from "./utilities";
 
 export type RippledParticlesConfig = {
     gravitySourceRect?: Rect;
@@ -83,7 +84,7 @@ export default class {
         canvasElement: HTMLCanvasElement,
         config: RippledParticlesConfig
     ) {
-        const options: RippledParticlesConfig = this.options = merge(defaultConfig, config);
+        const options: RippledParticlesConfig = this.options = _.merge({}, defaultConfig, config);
 
         // Screen ===================================
         const screenSize = this.screenSize = new ScreenSize(canvasElement);
