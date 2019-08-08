@@ -1,4 +1,4 @@
-import { random } from "lodash";
+import _ from "lodash";
 import { Particle } from "./particle";
 import { IBuilder } from "./interfaces/builder";
 import { PropertyAnimation } from "./propertyAnimation";
@@ -39,16 +39,16 @@ export class FadeInParticleBuilder implements IBuilder<Particle> {
 
     public build(particle: Particle) {
         // Randomize the Particle options
-        const targetOpacity = random(
+        const targetOpacity = _.random(
             this.options.minOpacity,
             this.options.maxOpacity,
             true
         );
-        const targetSize = random(
+        const targetSize = _.random(
             this.options.minSize,
             this.options.maxSize
         );
-        particle.speed = random(
+        particle.speed = _.random(
             this.options.minSpeed,
             this.options.maxSpeed,
             true
