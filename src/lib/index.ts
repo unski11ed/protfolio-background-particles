@@ -23,7 +23,7 @@ import { merge, createDebouncer } from "./utilities";
 export type RippledParticlesConfig = {
     gravitySourceRect?: Rect;
     particleConfig?: FadeInParticleBuilderOptions & {
-        gravityOpacityFunc: string;
+        gravityOpacityFunc?: string;
     };
     rippleConfig?: RippleGeneratorParams & {
         waveLength?: number;
@@ -180,7 +180,7 @@ export default class {
         this.gravitySource.setRegion({
             ...this.options.gravitySourceRect,
             x: this.options.gravitySourceRect.x * this.screenSize.width,
-            y: this.options.gravitySourceRect.x * this.screenSize.height,
+            y: this.options.gravitySourceRect.y * this.screenSize.height,
         });
 
         for (const particle of this.particles.particles) {
