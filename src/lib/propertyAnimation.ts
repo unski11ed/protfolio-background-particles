@@ -1,4 +1,4 @@
-import * as eases from 'eases';
+import eases from 'eases';
 import { IUpdatable } from "./interfaces/updatable";
 
 export type AnimationParams = {
