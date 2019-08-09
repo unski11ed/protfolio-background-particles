@@ -72,6 +72,8 @@ export default class {
     private particleUpdater: ParticleUpdater;
     private particleRenderer: ParticleRenderer;
     
+    private gravityRectParticleBuilder: GravityRectParticleBuilder;
+
     private rippleGenerator: RippleGenerator;
     private rippleTexture: RippleTexture;
     private rippleRenderer: RippleRenderer;
@@ -98,12 +100,13 @@ export default class {
         const propertyAnimation = this.propertyAnimation = new PropertyAnimation();
 
         // Particles ================================
-        const gravitySource = this.gravitySource =  new GravitySource({
+        const gravitySource = this.gravitySource = new GravitySource({
             ...options.gravitySourceRect,
             x: options.gravitySourceRect.x * screenSize.width,
             y: options.gravitySourceRect.x * screenSize.height,
         });
-        const gravityRectParticleBuilder = new GravityRectParticleBuilder(gravitySource);
+        const gravityRectParticleBuilder = this.gravityRectParticleBuilder =
+            new GravityRectParticleBuilder(gravitySource);
         const fadeInParticleBuilder = new FadeInParticleBuilder(propertyAnimation, options.particleConfig);
         const particles = this.particles = new Particles(
             screenSize,
@@ -162,6 +165,16 @@ export default class {
 
     public createParticles(count: number) {
         this.particles.create(count);
+    }
+
+    public setGravitySource(rect: Rect) {
+        // Set new region
+        this.gravitySource.setRegion(rect);
+
+        // Update particles velocities
+        for (const particle of this.particles.particles) {
+            this.gravityRectParticleBuilder.build(particle);
+        }
     }
 
     public trigger(origin: Point, color: string) {
