@@ -22,8 +22,6 @@ export const createParticleToGravityModifier = (params: {
     time: number
 ) => {
         const particleConfig = {
-            minOpacity: 0.1,
-            maxOpacity: 0.9,
             easing: 'cubicIn',
             ...params.particleConfig
         };
@@ -38,8 +36,7 @@ export const createParticleToGravityModifier = (params: {
         );
         const distanceNormalized = 
             (highestDistance - distanceToGravity) / highestDistance;
-        const targetOpacity = particleConfig.minOpacity +
-            eases[particleConfig.easing](distanceNormalized) * (particleConfig.maxOpacity - particleConfig.minOpacity);
+        const targetOpacity = eases[particleConfig.easing](distanceNormalized) * particle.maxOpacity;
 
         particle.opacity = targetOpacity;
     };

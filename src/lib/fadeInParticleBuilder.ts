@@ -53,12 +53,13 @@ export class FadeInParticleBuilder implements IBuilder<Particle> {
             this.options.maxSpeed,
             true
         );
+        particle.opacity = 0;
 
         // Animate them if nescessary
         this.propertyAnimation.animate(
             particle,
             {
-                opacity: [0, targetOpacity],
+                maxOpacity: [0, targetOpacity],
                 size: [0, targetSize]
             },
             {

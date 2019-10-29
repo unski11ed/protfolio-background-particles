@@ -25,10 +25,10 @@ const rippledParticles = new RippledParticles(canvasElement, {
     initialColor: colors[currentColorIndex],
 });
 rippledParticles.events.on('reset', () => {
-    rippledParticles.createParticles(200);
+    rippledParticles.createParticles(1000);
 })
 
-rippledParticles.createParticles(200);
+rippledParticles.createParticles(1000);
 gravityShadowElement.style.width = `${gravity.width}px`;
 gravityShadowElement.style.height = `${gravity.height}px`;
 gravityShadowElement.style.left = `${gravity.x * 100}%`;
